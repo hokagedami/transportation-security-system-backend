@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const riderController = require('../controllers/riderController');
-const { authenticateToken, authorizeRole } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken, authorizeRole } = require('../../shared/middleware/authMiddleware');
 const { validateCreateRider, validateUpdateRider, validateQuery } = require('../validators/riderValidators');
 
 router.post('/', authenticateToken, authorizeRole(['super_admin', 'admin', 'lga_admin', 'field_officer']), validateCreateRider, riderController.createRider);

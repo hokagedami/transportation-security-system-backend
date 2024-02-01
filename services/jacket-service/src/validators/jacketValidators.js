@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { paginationSchema, lgaIdSchema } = require('../../../../shared/validators/commonSchemas');
+const { paginationSchema, lgaIdSchema } = require('../../shared/validators/commonSchemas');
 
 const createOrderSchema = Joi.object({
   rider_id: Joi.number().integer().positive().required(),

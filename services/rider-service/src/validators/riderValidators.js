@@ -5,7 +5,7 @@ const {
   lgaIdSchema, 
   vehicleTypeSchema,
   statusSchema 
-} = require('../../../../shared/validators/commonSchemas');
+} = require('../../shared/validators/commonSchemas');
 
 const createRiderSchema = Joi.object({
   first_name: Joi.string().min(2).max(50).required(),

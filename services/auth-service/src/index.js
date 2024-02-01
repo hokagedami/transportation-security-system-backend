@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const errorHandler = require('../../../shared/middleware/errorHandler');
-const logger = require('../../../shared/utils/logger');
+const errorHandler = require('../shared/middleware/errorHandler');
+const logger = require('../shared/utils/logger');
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const verificationController = require('../controllers/verificationController');
-const { authenticateToken, authorizeRole } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken, authorizeRole } = require('../../shared/middleware/authMiddleware');
 const { 
   validateVerificationLog,
   validateIncidentReport,

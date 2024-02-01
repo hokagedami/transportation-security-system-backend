@@ -1,13 +1,76 @@
 {
   "name": "tss-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Transportation Security System Backend Services",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "npm run test:auth && npm run test:rider && npm run test:jacket && npm run test:payment && npm run test:sms && npm run test:verification",
+    "test:integration": "npm run test:e2e",
+    "test:auth": "cd services/auth-service && npm test",
+    "test:rider": "cd services/rider-service && npm test",
+    "test:jacket": "cd services/jacket-service && npm test",
+    "test:payment": "cd services/payment-service && npm test",
+    "test:sms": "cd services/sms-service && npm test",
+    "test:verification": "cd services/verification-service && npm test",
+    "test:e2e": "jest e2e-tests/ --testTimeout=30000",
+    "test:coverage": "npm run test:unit -- --coverage",
+    "test:watch": "npm run test:unit -- --watch",
+    "test:docker": "./scripts/test-docker.sh unit",
+    "test:docker:e2e": "./scripts/test-docker.sh e2e",
+    "test:docker:all": "./scripts/test-docker.sh all",
+    "test:docker:coverage": "./scripts/test-docker.sh coverage",
+    "test:docker:build": "./scripts/test-docker.sh build",
+    "test:docker:cleanup": "./scripts/test-docker.sh cleanup",
+    "test:docker:debug": "./scripts/test-docker.sh debug",
+    "dev": "docker-compose up --build",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "restart": "npm run stop && npm run start",
+    "setup:test-db": "docker-compose -f docker-compose.test.yml up -d postgres-test redis-test",
+    "teardown:test-db": "docker-compose -f docker-compose.test.yml down",
+    "lint": "npm run lint:auth && npm run lint:rider && npm run lint:jacket && npm run lint:payment && npm run lint:sms && npm run lint:verification",
+    "lint:auth": "cd services/auth-service && npm run lint",
+    "lint:rider": "cd services/rider-service && npm run lint",
+    "lint:jacket": "cd services/jacket-service && npm run lint",
+    "lint:payment": "cd services/payment-service && npm run lint",  
+    "lint:sms": "cd services/sms-service && npm run lint",
+    "lint:verification": "cd services/verification-service && npm run lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "devDependencies": {
+    "jest": "^29.6.4",
+    "supertest": "^6.3.3",
+    "axios": "^1.5.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "services/*/src/**/*.js",
+      "!services/*/src/index.js",
+      "!**/node_modules/**"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/e2e-tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ]
+  },
+  "keywords": [
+    "transportation",
+    "security",
+    "microservices",
+    "nodejs",
+    "express"
+  ],
+  "author": "TSS Development Team",
+  "license": "ISC"
 }

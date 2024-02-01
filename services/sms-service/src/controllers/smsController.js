@@ -1,6 +1,6 @@
 const smsService = require('../services/smsService');
-const { sendSuccess, sendError, sendPaginatedResponse } = require('../../../../shared/utils/responseHelper');
-const logger = require('../../../../shared/utils/logger');
+const { sendSuccess, sendError, sendPaginatedResponse } = require('../../shared/utils/responseHelper');
+const logger = require('../../shared/utils/logger');
 
 const sendVerification = async (req, res, next) => {
   try {

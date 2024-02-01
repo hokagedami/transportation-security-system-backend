@@ -1,6 +1,6 @@
 const riderService = require('../services/riderService');
-const { sendSuccess, sendError, sendPaginatedResponse } = require('../../../../shared/utils/responseHelper');
-const logger = require('../../../../shared/utils/logger');
+const { sendSuccess, sendError, sendPaginatedResponse } = require('../../shared/utils/responseHelper');
+const logger = require('../../shared/utils/logger');
 
 const createRider = async (req, res, next) => {
   try {

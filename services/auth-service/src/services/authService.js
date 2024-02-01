@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('../../../../shared/database/connection');
-const logger = require('../../../../shared/utils/logger');
+const pool = require('../../shared/database/connection');
+const logger = require('../../shared/utils/logger');
 
 const generateTokens = (user) => {
   const payload = {

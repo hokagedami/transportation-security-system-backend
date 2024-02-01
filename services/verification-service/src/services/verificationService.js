@@ -1,5 +1,5 @@
-const pool = require('../../../../shared/database/connection');
-const logger = require('../../../../shared/utils/logger');
+const pool = require('../../shared/database/connection');
+const logger = require('../../shared/utils/logger');
 
 const validateJacketNumber = (jacketNumber) => {
   const pattern = /^OG-[A-Z]{3}-\d{5}$/;

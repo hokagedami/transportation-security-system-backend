@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
-const { authenticateToken, authorizeRole } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken, authorizeRole } = require('../../shared/middleware/authMiddleware');
 const { 
   validateInitializePayment, 
   validateVerifyPayment,

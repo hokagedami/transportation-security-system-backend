@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { authenticateToken } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken } = require('../../shared/middleware/authMiddleware');
 const rateLimiter = require('../middleware/rateLimiter');
 const { validateLogin, validateRefreshToken } = require('../validators/authValidators');
 
