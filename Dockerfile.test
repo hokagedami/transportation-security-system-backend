@@ -1,0 +1,53 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install system dependencies for testing
+RUN apk add --no-cache \
+    bash \
+    curl \
+    git
+
+# Copy root package files
+COPY package*.json ./
+COPY jest.setup.js ./
+
+# Install root dependencies
+RUN npm install
+
+# Copy all services
+COPY services/ ./services/
+
+# Install dependencies for all services
+RUN cd services/auth-service && npm install && \
+    cd ../rider-service && npm install && \
+    cd ../jacket-service && npm install && \
+    cd ../payment-service && npm install && \
+    cd ../sms-service && npm install && \
+    cd ../verification-service && npm install
+
+# Copy test files
+COPY e2e-tests/ ./e2e-tests/
+
+# Set environment variables for testing
+ENV NODE_ENV=test
+ENV JWT_SECRET=test-jwt-secret-key
+ENV DB_HOST=postgres-test
+ENV DB_PORT=5432
+ENV DB_NAME=tss_test_db
+ENV DB_USER=postgres
+ENV DB_PASSWORD=postgres
+ENV REDIS_URL=redis://redis-test:6379
+
+# Create test script
+RUN echo '#!/bin/bash\n\
+echo "Waiting for test database to be ready..."\n\
+while ! nc -z postgres-test 5432; do sleep 1; done\n\
+echo "Waiting for test redis to be ready..."\n\
+while ! nc -z redis-test 6379; do sleep 1; done\n\
+echo "Running tests..."\n\
+exec "$@"' > /app/wait-for-services.sh && \
+chmod +x /app/wait-for-services.sh
+
+# Default command
+CMD ["./wait-for-services.sh", "npm", "test"]
