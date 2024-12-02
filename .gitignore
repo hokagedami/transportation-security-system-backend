@@ -1,0 +1,8 @@
+# Instructions
+instructions.txt
+
+# IDE specific files
+.idea/
+
+# Claude settings
+.claude/
