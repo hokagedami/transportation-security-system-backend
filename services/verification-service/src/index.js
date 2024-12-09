@@ -7,6 +7,7 @@ const logger = require('../../../shared/utils/logger');
 
 const app = express();
 const PORT = process.env.PORT || 3006;
+const verificationRoutes = require('./routes/verificationRoutes');
 
 app.use(helmet());
 app.use(cors());
@@ -16,6 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', service: 'verification-service', timestamp: new Date().toISOString() });
 });
+
+app.use('/', verificationRoutes);
 
 app.use(errorHandler);
 
