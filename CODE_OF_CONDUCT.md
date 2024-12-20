@@ -138,22 +138,25 @@ Contributors who believe enforcement action was taken in error may:
 Given the sensitive nature of transportation security:
 
 ### Responsible Development
-- Follow secure coding practices
-- Implement proper authentication and authorization
-- Validate all inputs and sanitize outputs
-- Use encryption for sensitive data
+- Follow secure coding practices and OWASP guidelines
+- Implement proper authentication and authorization mechanisms
+- Validate all inputs and sanitize outputs to prevent injection attacks
+- Use encryption for sensitive data both in transit and at rest
+- Conduct regular security reviews of contributed code
 
 ### Vulnerability Handling
-- Report security issues privately to maintainers
-- Allow reasonable time for fixes before public disclosure
-- Coordinate disclosure with affected parties
+- Report security issues privately to maintainers first
+- Allow reasonable time (90 days minimum) for fixes before public disclosure
+- Coordinate disclosure with affected parties and security team
 - Credit researchers who report issues responsibly
+- Follow responsible disclosure practices outlined in SECURITY.md
 
 ### Data Protection
-- Protect personally identifiable information (PII)
-- Implement privacy by design principles
-- Comply with relevant data protection regulations
-- Regular security audits and assessments
+- Protect personally identifiable information (PII) of riders and officials
+- Implement privacy by design principles in all features
+- Comply with relevant data protection regulations (GDPR, CCPA, local laws)
+- Conduct regular security audits and penetration testing
+- Ensure secure handling of biometric and identification data
 
 ## Recognition and Attribution
 
