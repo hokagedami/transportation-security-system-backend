@@ -222,21 +222,30 @@ This Code of Conduct integrates with our project processes:
 
 ### Pull Request Reviews
 - Code reviews should be conducted with respect and professionalism
-- Focus feedback on code quality, not personal preferences
-- Acknowledge good work and provide constructive suggestions
-- Be responsive to feedback and questions
+- Focus feedback on code quality, security practices, and functionality
+- Acknowledge good work and provide constructive, actionable suggestions
+- Be responsive to feedback and questions within reasonable timeframes
+- Ensure all security-sensitive changes receive thorough review
 
 ### Issue Management
-- Use clear, descriptive titles and descriptions
-- Tag issues appropriately with relevant labels
+- Use clear, descriptive titles and descriptions with appropriate context
+- Tag issues appropriately with relevant labels (bug, enhancement, security, etc.)
 - Respond thoughtfully to questions and requests for clarification
 - Close issues with explanatory comments when resolved
+- Prioritize security-related issues and handle them with appropriate confidentiality
 
 ### Community Engagement
-- Welcome new contributors and help them get started
-- Share knowledge through documentation and examples
-- Participate constructively in discussions and debates
-- Respect different skill levels and backgrounds
+- Welcome new contributors and help them get started with onboarding guides
+- Share knowledge through comprehensive documentation and practical examples
+- Participate constructively in discussions and technical debates
+- Respect different skill levels, backgrounds, and cultural perspectives
+- Foster an environment where questions are encouraged and learning is celebrated
+
+### Continuous Improvement
+- Regularly review and update community guidelines based on feedback
+- Conduct retrospectives on community interactions and project health
+- Implement feedback mechanisms for community members to suggest improvements
+- Monitor and address any patterns of concerning behavior proactively
 
 ---
 
