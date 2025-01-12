@@ -1,5 +1,5 @@
-const pool = require('../../../../shared/database/connection');
-const logger = require('../../../../shared/utils/logger');
+const pool = require('../../shared/database/connection');
+const logger = require('../../shared/utils/logger');
 
 const generateJacketNumber = async (lgaId) => {
   const client = await pool.connect();

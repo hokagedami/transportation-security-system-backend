@@ -1,5 +1,5 @@
-const pool = require('../../../../shared/database/connection');
-const logger = require('../../../../shared/utils/logger');
+const pool = require('../../shared/database/connection');
+const logger = require('../../shared/utils/logger');
 
 const createOrder = async (orderData) => {
   const client = await pool.connect();

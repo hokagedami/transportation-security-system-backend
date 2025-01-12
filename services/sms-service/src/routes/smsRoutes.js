@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const smsController = require('../controllers/smsController');
-const { authenticateToken, authorizeRole } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken, authorizeRole } = require('../../shared/middleware/authMiddleware');
 const { 
   validateSendVerification, 
   validateSendNotification,

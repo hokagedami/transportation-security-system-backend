@@ -3,7 +3,7 @@ const {
   phoneSchema, 
   paginationSchema, 
   jacketNumberSchema 
-} = require('../../../../shared/validators/commonSchemas');
+} = require('../../shared/validators/commonSchemas');
 
 const verificationLogSchema = Joi.object({
   jacket_number: jacketNumberSchema.required(),

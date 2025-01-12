@@ -1,6 +1,6 @@
 const paymentService = require('../services/paymentService');
-const { sendSuccess, sendError, sendPaginatedResponse } = require('../../../../shared/utils/responseHelper');
-const logger = require('../../../../shared/utils/logger');
+const { sendSuccess, sendError, sendPaginatedResponse } = require('../../shared/utils/responseHelper');
+const logger = require('../../shared/utils/logger');
 
 const initializePayment = async (req, res, next) => {
   try {

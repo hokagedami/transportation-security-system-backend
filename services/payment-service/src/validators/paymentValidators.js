@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { phoneSchema, lgaIdSchema } = require('../../../../shared/validators/commonSchemas');
+const { phoneSchema, lgaIdSchema } = require('../../shared/validators/commonSchemas');
 
 const initializePaymentSchema = Joi.object({
   rider_id: Joi.number().integer().positive().required(),

@@ -1,5 +1,5 @@
-const pool = require('../../../../shared/database/connection');
-const logger = require('../../../../shared/utils/logger');
+const pool = require('../../shared/database/connection');
+const logger = require('../../shared/utils/logger');
 const axios = require('axios');
 
 const SMS_TEMPLATES = {

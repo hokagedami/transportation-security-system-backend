@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jacketController = require('../controllers/jacketController');
-const { authenticateToken, authorizeRole } = require('../../../../shared/middleware/authMiddleware');
+const { authenticateToken, authorizeRole } = require('../../shared/middleware/authMiddleware');
 const { 
   validateCreateOrder, 
   validateStatusUpdate, 

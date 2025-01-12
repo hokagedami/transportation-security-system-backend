@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { phoneSchema, paginationSchema } = require('../../../../shared/validators/commonSchemas');
+const { phoneSchema, paginationSchema } = require('../../shared/validators/commonSchemas');
 
 const sendVerificationSchema = Joi.object({
   phone: phoneSchema.required(),

@@ -1,6 +1,6 @@
 const jacketService = require('../services/jacketService');
-const { sendSuccess, sendError, sendPaginatedResponse } = require('../../../../shared/utils/responseHelper');
-const logger = require('../../../../shared/utils/logger');
+const { sendSuccess, sendError, sendPaginatedResponse } = require('../../shared/utils/responseHelper');
+const logger = require('../../shared/utils/logger');
 
 const createOrder = async (req, res, next) => {
   try {

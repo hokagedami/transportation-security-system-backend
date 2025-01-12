@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -11,7 +9,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - tss-network
     healthcheck:
@@ -52,7 +50,6 @@ services:
       - tss-network
     volumes:
       - ./services/auth-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
   rider-service:
@@ -73,7 +70,6 @@ services:
       - tss-network
     volumes:
       - ./services/rider-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
   jacket-service:
@@ -94,7 +90,6 @@ services:
       - tss-network
     volumes:
       - ./services/jacket-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
   payment-service:
@@ -115,7 +110,6 @@ services:
       - tss-network
     volumes:
       - ./services/payment-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
   sms-service:
@@ -136,7 +130,6 @@ services:
       - tss-network
     volumes:
       - ./services/sms-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
   verification-service:
@@ -157,7 +150,6 @@ services:
       - tss-network
     volumes:
       - ./services/verification-service:/app
-      - ./shared:/shared
       - /app/node_modules
 
 networks:

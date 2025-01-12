@@ -1,6 +1,6 @@
 const authService = require('../services/authService');
-const { sendSuccess, sendError } = require('../../../../shared/utils/responseHelper');
-const logger = require('../../../../shared/utils/logger');
+const { sendSuccess, sendError } = require('../../shared/utils/responseHelper');
+const logger = require('../../shared/utils/logger');
 
 const login = async (req, res, next) => {
   try {
