@@ -64,12 +64,14 @@ CREATE TABLE riders (
     registration_date DATE DEFAULT CURRENT_DATE,
     created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_riders_jacket_number (jacket_number),
-    INDEX idx_riders_lga_id (lga_id),
-    INDEX idx_riders_status (status),
-    INDEX idx_riders_phone (phone)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for riders table
+CREATE INDEX idx_riders_jacket_number ON riders (jacket_number);
+CREATE INDEX idx_riders_lga_id ON riders (lga_id);
+CREATE INDEX idx_riders_status ON riders (status);
+CREATE INDEX idx_riders_phone ON riders (phone);
 
 -- Payments table
 CREATE TABLE payments (
@@ -88,11 +90,13 @@ CREATE TABLE payments (
     name VARCHAR(200),
     lga_id INTEGER REFERENCES lgas(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_payments_reference (reference),
-    INDEX idx_payments_rider_id (rider_id),
-    INDEX idx_payments_status (status)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for payments table
+CREATE INDEX idx_payments_reference ON payments (reference);
+CREATE INDEX idx_payments_rider_id ON payments (rider_id);
+CREATE INDEX idx_payments_status ON payments (status);
 
 -- Production batches table
 CREATE TABLE production_batches (
@@ -128,11 +132,13 @@ CREATE TABLE jackets (
     rider_confirmation BOOLEAN DEFAULT false,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_jackets_jacket_number (jacket_number),
-    INDEX idx_jackets_rider_id (rider_id),
-    INDEX idx_jackets_status (status)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for jackets table
+CREATE INDEX idx_jackets_jacket_number ON jackets (jacket_number);
+CREATE INDEX idx_jackets_rider_id ON jackets (rider_id);
+CREATE INDEX idx_jackets_status ON jackets (status);
 
 -- SMS logs table
 CREATE TABLE sms_logs (
@@ -145,10 +151,12 @@ CREATE TABLE sms_logs (
     gateway_response JSON,
     cost DECIMAL(8, 2),
     rider_id INTEGER REFERENCES riders(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_sms_logs_phone (phone),
-    INDEX idx_sms_logs_created_at (created_at)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for sms_logs table
+CREATE INDEX idx_sms_logs_phone ON sms_logs (phone);
+CREATE INDEX idx_sms_logs_created_at ON sms_logs (created_at);
 
 -- Verifications table
 CREATE TABLE verifications (
@@ -161,10 +169,12 @@ CREATE TABLE verifications (
     user_agent TEXT,
     ip_address VARCHAR(45),
     result VARCHAR(20) CHECK (result IN ('valid', 'invalid', 'not_found')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_verifications_jacket_number (jacket_number),
-    INDEX idx_verifications_created_at (created_at)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for verifications table
+CREATE INDEX idx_verifications_jacket_number ON verifications (jacket_number);
+CREATE INDEX idx_verifications_created_at ON verifications (created_at);
 
 -- Incidents table
 CREATE TABLE incidents (
@@ -183,11 +193,13 @@ CREATE TABLE incidents (
     resolution_notes TEXT,
     resolved_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_incidents_reference_number (reference_number),
-    INDEX idx_incidents_rider_id (rider_id),
-    INDEX idx_incidents_status (status)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for incidents table
+CREATE INDEX idx_incidents_reference_number ON incidents (reference_number);
+CREATE INDEX idx_incidents_rider_id ON incidents (rider_id);
+CREATE INDEX idx_incidents_status ON incidents (status);
 
 -- Create update trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()

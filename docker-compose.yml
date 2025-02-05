@@ -41,6 +41,15 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,6 +70,15 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,6 +99,15 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3003
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
     depends_on:
       postgres:
         condition: service_healthy
@@ -101,6 +128,17 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3004
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY:-your_paystack_secret_key}
+      - FLUTTERWAVE_SECRET_KEY=${FLUTTERWAVE_SECRET_KEY:-your_flutterwave_secret_key}
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,6 +159,17 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3005
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
+      - TERMII_API_KEY=${TERMII_API_KEY:-your_termii_api_key}
+      - TERMII_SENDER_ID=${TERMII_SENDER_ID:-OGUN-TRANS}
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,6 +190,15 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3006
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-tss_db}
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-8h}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-7d}
     depends_on:
       postgres:
         condition: service_healthy
