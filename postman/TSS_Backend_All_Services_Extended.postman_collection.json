@@ -1,0 +1,1915 @@
+{
+  "item": [
+    {
+      "name": "Rider Service Tests",
+      "item": [
+        {
+          "name": "Create Rider - Valid Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('jacket_number');",
+                  "    pm.expect(response.data).to.have.property('status', 'pending');",
+                  "    ",
+                  "    // Store rider ID and jacket number for subsequent tests",
+                  "    pm.collectionVariables.set('test_rider_id', response.data.id);",
+                  "    pm.collectionVariables.set('test_jacket_number', response.data.jacket_number);",
+                  "});",
+                  "",
+                  "pm.test('Jacket number format is correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    const jacketNumber = response.data.jacket_number;",
+                  "    pm.expect(jacketNumber).to.match(/^[A-Z]{3}-\\d{5}$/);",
+                  "});",
+                  "",
+                  "pm.test('Required fields are present', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('first_name');",
+                  "    pm.expect(response.data).to.have.property('last_name');",
+                  "    pm.expect(response.data).to.have.property('phone');",
+                  "    pm.expect(response.data).to.have.property('lga_id');",
+                  "    pm.expect(response.data).to.have.property('vehicle_type');",
+                  "    pm.expect(response.data).to.have.property('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+2348123456789\",\n  \"email\": \"john.doe@example.com\",\n  \"lga_id\": 1,\n  \"vehicle_type\": \"motorcycle\",\n  \"vehicle_plate\": \"ABC123XY\",\n  \"address\": \"123 Main Street, Test City\",\n  \"emergency_contact_name\": \"Jane Doe\",\n  \"emergency_contact_phone\": \"+2348987654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Rider - Invalid Phone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid phone number rejected', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', false);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response.message).to.include('phone');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"invalid-phone\",\n  \"lga_id\": 1,\n  \"vehicle_type\": \"motorcycle\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Riders - Default Pagination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Riders retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('riders');",
+                  "    pm.expect(response.data).to.have.property('pagination');",
+                  "    pm.expect(response.data.riders).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Pagination metadata is correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    const pagination = response.data.pagination;",
+                  "    pm.expect(pagination).to.have.property('page');",
+                  "    pm.expect(pagination).to.have.property('limit');",
+                  "    pm.expect(pagination).to.have.property('total');",
+                  "    pm.expect(pagination).to.have.property('totalPages');",
+                  "    pm.expect(pagination.page).to.be.a('number');",
+                  "    pm.expect(pagination.limit).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Riders - With Filters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Filtered riders retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response.data).to.have.property('riders');",
+                  "});",
+                  "",
+                  "pm.test('Filters applied correctly', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.riders.length > 0) {",
+                  "        response.data.riders.forEach(rider => {",
+                  "            pm.expect(rider.vehicle_type).to.equal('motorcycle');",
+                  "            pm.expect(rider.status).to.equal('pending');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders?page=1&limit=10&vehicle_type=motorcycle&status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "vehicle_type",
+                  "value": "motorcycle"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Rider by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider retrieved by ID successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('jacket_number');",
+                  "});",
+                  "",
+                  "pm.test('Rider ID matches requested ID', function () {",
+                  "    const response = pm.response.json();",
+                  "    const expectedId = pm.collectionVariables.get('test_rider_id');",
+                  "    pm.expect(response.data.id).to.equal(parseInt(expectedId));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders/{{test_rider_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders",
+                "{{test_rider_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Rider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider updated successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "});",
+                  "",
+                  "pm.test('Updated fields are correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.email).to.equal('updated.email@example.com');",
+                  "    pm.expect(response.data.address).to.equal('456 Updated Street');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"updated.email@example.com\",\n  \"address\": \"456 Updated Street\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders/{{test_rider_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders",
+                "{{test_rider_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Rider History",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider history retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('History entries have required fields', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.length > 0) {",
+                  "        response.data.forEach(entry => {",
+                  "            pm.expect(entry).to.have.property('action');",
+                  "            pm.expect(entry).to.have.property('timestamp');",
+                  "            pm.expect(entry).to.have.property('details');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders/{{test_rider_id}}/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders",
+                "{{test_rider_id}}",
+                "history"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jacket Service Tests",
+      "item": [
+        {
+          "name": "Create Jacket Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Jacket order created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('status', 'ordered');",
+                  "    ",
+                  "    // Store jacket ID for subsequent tests",
+                  "    pm.collectionVariables.set('test_jacket_id', response.data.id);",
+                  "});",
+                  "",
+                  "pm.test('Order details are correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    const riderId = pm.collectionVariables.get('test_rider_id');",
+                  "    pm.expect(response.data.rider_id).to.equal(parseInt(riderId));",
+                  "    pm.expect(response.data.quantity).to.equal(1);",
+                  "    pm.expect(response.data.lga_id).to.equal(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rider_id\": {{test_rider_id}},\n  \"payment_reference\": \"PAY-{{timestamp}}\",\n  \"quantity\": 1,\n  \"lga_id\": 1,\n  \"notes\": \"Test jacket order\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets/create-order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets",
+                "create-order"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Jackets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Jackets retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('jackets');",
+                  "    pm.expect(response.data).to.have.property('pagination');",
+                  "    pm.expect(response.data.jackets).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Jacket Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Jacket status updated successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data.status).to.equal('produced');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"produced\",\n  \"notes\": \"Jacket production completed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets/{{test_jacket_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets",
+                "{{test_jacket_id}}",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Production Batch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Production batch created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('batch_number');",
+                  "    ",
+                  "    // Store batch ID for subsequent tests",
+                  "    pm.collectionVariables.set('test_batch_id', response.data.id);",
+                  "});",
+                  "",
+                  "pm.test('Batch details are correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.lga_id).to.equal(1);",
+                  "    pm.expect(response.data.quantity).to.equal(100);",
+                  "    pm.expect(response.data.cost_per_unit).to.equal(50.00);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lga_id\": 1,\n  \"quantity\": 100,\n  \"supplier_info\": {\n    \"name\": \"Test Supplier\",\n    \"contact\": \"+2348123456789\",\n    \"address\": \"Supplier Address\"\n  },\n  \"cost_per_unit\": 50.00,\n  \"production_start_date\": \"2025-02-01\",\n  \"notes\": \"Test production batch\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets",
+                "batch"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Batch Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Batch details retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('batch_number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets/batch/{{test_batch_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets",
+                "batch",
+                "{{test_batch_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Distribute Jacket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Jacket distributed successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data.status).to.equal('distributed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distribution_notes\": \"Jacket distributed to rider\",\n  \"distributed_by\": \"Field Officer\",\n  \"distribution_location\": \"LGA Office\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{jacket_port}}/jackets/{{test_jacket_id}}/distribute",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{jacket_port}}",
+              "path": [
+                "jackets",
+                "{{test_jacket_id}}",
+                "distribute"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Service Tests",
+      "item": [
+        {
+          "name": "Initialize Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment initialized successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('reference');",
+                  "    pm.expect(response.data).to.have.property('amount');",
+                  "    pm.expect(response.data).to.have.property('status', 'pending');",
+                  "    ",
+                  "    // Store payment reference for subsequent tests",
+                  "    pm.collectionVariables.set('test_payment_ref', response.data.reference);",
+                  "});",
+                  "",
+                  "pm.test('Payment details are correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    const riderId = pm.collectionVariables.get('test_rider_id');",
+                  "    pm.expect(response.data.rider_id).to.equal(parseInt(riderId));",
+                  "    pm.expect(response.data.amount).to.equal(5000.00);",
+                  "    pm.expect(response.data.method).to.equal('paystack');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rider_id\": {{test_rider_id}},\n  \"amount\": 5000.00,\n  \"method\": \"paystack\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+2348123456789\",\n  \"name\": \"John Doe\",\n  \"jacket_number\": \"{{test_jacket_number}}\",\n  \"lga_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{payment_port}}/payment/initialize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{payment_port}}",
+              "path": [
+                "payment",
+                "initialize"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Rider Payments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider payments retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Payment data contains required fields', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.length > 0) {",
+                  "        response.data.forEach(payment => {",
+                  "            pm.expect(payment).to.have.property('reference');",
+                  "            pm.expect(payment).to.have.property('amount');",
+                  "            pm.expect(payment).to.have.property('status');",
+                  "            pm.expect(payment).to.have.property('method');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{payment_port}}/payment/rider/{{test_rider_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{payment_port}}",
+              "path": [
+                "payment",
+                "rider",
+                "{{test_rider_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment verified successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('status', 'verified');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verification_notes\": \"Payment verified manually by admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{payment_port}}/payment/{{test_payment_ref}}/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{payment_port}}",
+              "path": [
+                "payment",
+                "{{test_payment_ref}}",
+                "verify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Verifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Pending verifications retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{payment_port}}/payment/pending-verification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{payment_port}}",
+              "path": [
+                "payment",
+                "pending-verification"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SMS Service Tests",
+      "item": [
+        {
+          "name": "Send Verification SMS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Verification SMS sent successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('message_id');",
+                  "    pm.expect(response.data).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+2348123456789\",\n  \"jacket_number\": \"{{test_jacket_number}}\",\n  \"rider_data\": {\n    \"rider_id\": {{test_rider_id}},\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"lga_name\": \"Test LGA\",\n    \"vehicle_type\": \"motorcycle\",\n    \"status\": \"active\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{sms_port}}/sms/send-verification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{sms_port}}",
+              "path": [
+                "sms",
+                "send-verification"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Notification SMS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Notification SMS sent successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('message_id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+2348123456789\",\n  \"message\": \"Your jacket order has been processed and is ready for pickup.\",\n  \"message_type\": \"jacket_ready\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{sms_port}}/sms/send-notification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{sms_port}}",
+              "path": [
+                "sms",
+                "send-notification"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Bulk SMS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Bulk SMS sent successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('batch_id');",
+                  "    pm.expect(response.data).to.have.property('total_sent');",
+                  "    pm.expect(response.data.total_sent).to.equal(2);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\"+2348123456789\", \"+2348987654321\"],\n  \"message\": \"Important: System maintenance scheduled for tomorrow 2AM-4AM. Services will be temporarily unavailable.\",\n  \"message_type\": \"announcement\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{sms_port}}/sms/send-bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{sms_port}}",
+              "path": [
+                "sms",
+                "send-bulk"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get SMS Logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('SMS logs retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('logs');",
+                  "    pm.expect(response.data).to.have.property('pagination');",
+                  "    pm.expect(response.data.logs).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('SMS log entries have required fields', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.logs.length > 0) {",
+                  "        response.data.logs.forEach(log => {",
+                  "            pm.expect(log).to.have.property('message_id');",
+                  "            pm.expect(log).to.have.property('phone');",
+                  "            pm.expect(log).to.have.property('message');",
+                  "            pm.expect(log).to.have.property('status');",
+                  "            pm.expect(log).to.have.property('sent_at');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{sms_port}}/sms/logs?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{sms_port}}",
+              "path": [
+                "sms",
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verification Service Tests",
+      "item": [
+        {
+          "name": "Verify Rider by Jacket Number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rider verification successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('rider');",
+                  "    pm.expect(response.data).to.have.property('verification_id');",
+                  "});",
+                  "",
+                  "pm.test('Rider data contains required fields', function () {",
+                  "    const response = pm.response.json();",
+                  "    const rider = response.data.rider;",
+                  "    pm.expect(rider).to.have.property('jacket_number');",
+                  "    pm.expect(rider).to.have.property('first_name');",
+                  "    pm.expect(rider).to.have.property('last_name');",
+                  "    pm.expect(rider).to.have.property('status');",
+                  "    pm.expect(rider).to.have.property('vehicle_type');",
+                  "});",
+                  "",
+                  "pm.test('Sensitive data is masked', function () {",
+                  "    const response = pm.response.json();",
+                  "    const rider = response.data.rider;",
+                  "    if (rider.phone) {",
+                  "        pm.expect(rider.phone).to.include('***');",
+                  "    }",
+                  "    if (rider.email) {",
+                  "        pm.expect(rider.email).to.include('***');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/verify/{{test_jacket_number}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "verify",
+                "{{test_jacket_number}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Invalid Jacket Number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid jacket number returns not found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', false);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response.message).to.include('not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/verify/INVALID-12345",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "verify",
+                "INVALID-12345"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Log Verification Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Verification logged successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('log_id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jacket_number\": \"{{test_jacket_number}}\",\n  \"verifier_phone\": \"+2349876543210\",\n  \"verification_method\": \"web\",\n  \"location_data\": {\n    \"latitude\": 6.4539,\n    \"longitude\": 3.3961,\n    \"address\": \"Test Location, Lagos\"\n  },\n  \"user_agent\": \"PostmanTestAgent/1.0\",\n  \"ip_address\": \"192.168.1.100\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/verify/log",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "verify",
+                "log"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Incident Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Incident report created successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('id');",
+                  "    pm.expect(response.data).to.have.property('incident_number');",
+                  "    pm.expect(response.data).to.have.property('status', 'open');",
+                  "    ",
+                  "    // Store incident ID for subsequent tests",
+                  "    pm.collectionVariables.set('test_incident_id', response.data.id);",
+                  "});",
+                  "",
+                  "pm.test('Incident details are correct', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.incident_type).to.equal('misconduct');",
+                  "    pm.expect(response.data.severity).to.equal('medium');",
+                  "    pm.expect(response.data.reporter_name).to.equal('Anonymous Reporter');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jacket_number\": \"{{test_jacket_number}}\",\n  \"reporter_name\": \"Anonymous Reporter\",\n  \"reporter_phone\": \"+2349876543210\",\n  \"incident_type\": \"misconduct\",\n  \"description\": \"Rider was seen not following traffic rules and creating disturbance.\",\n  \"location\": \"Test Junction, Lagos State\",\n  \"severity\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/incidents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "incidents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Incidents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Incidents retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data).to.have.property('incidents');",
+                  "    pm.expect(response.data).to.have.property('pagination');",
+                  "    pm.expect(response.data.incidents).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Incident entries have required fields', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.incidents.length > 0) {",
+                  "        response.data.incidents.forEach(incident => {",
+                  "            pm.expect(incident).to.have.property('id');",
+                  "            pm.expect(incident).to.have.property('incident_number');",
+                  "            pm.expect(incident).to.have.property('incident_type');",
+                  "            pm.expect(incident).to.have.property('status');",
+                  "            pm.expect(incident).to.have.property('severity');",
+                  "            pm.expect(incident).to.have.property('created_at');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/incidents?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "incidents"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Incident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Incident updated successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "    pm.expect(response.data.status).to.equal('investigating');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"investigating\",\n  \"assigned_to\": 1,\n  \"notes\": \"Incident assigned to field officer for investigation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/incidents/{{test_incident_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "incidents",
+                "{{test_incident_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Verification Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Verification statistics retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('data');",
+                  "});",
+                  "",
+                  "pm.test('Statistics contain expected metrics', function () {",
+                  "    const response = pm.response.json();",
+                  "    const stats = response.data;",
+                  "    pm.expect(stats).to.have.property('total_verifications');",
+                  "    pm.expect(stats).to.have.property('successful_verifications');",
+                  "    pm.expect(stats).to.have.property('failed_verifications');",
+                  "    pm.expect(stats).to.have.property('verification_rate');",
+                  "    pm.expect(stats).to.have.property('verifications_by_method');",
+                  "    pm.expect(stats).to.have.property('recent_activity');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{verification_port}}/verify/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{verification_port}}",
+              "path": [
+                "verify",
+                "stats"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security & Error Handling Tests",
+      "item": [
+        {
+          "name": "Test Rate Limiting - Auth Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Rate limiting works for auth endpoint', function () {",
+                  "    // This test would need to be run multiple times rapidly",
+                  "    // For now, we just check the structure",
+                  "    if (pm.response.code === 429) {",
+                  "        const response = pm.response.json();",
+                  "        pm.expect(response).to.have.property('success', false);",
+                  "        pm.expect(response).to.have.property('message');",
+                  "        pm.expect(response.message).to.include('rate limit');",
+                  "    } else {",
+                  "        pm.test('Normal response when under rate limit', function () {",
+                  "            pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rate_test\",\n  \"password\": \"rate_test\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{auth_port}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{auth_port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test SQL Injection Protection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('SQL injection attempts are blocked', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', false);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin'; DROP TABLE users; --\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{auth_port}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{auth_port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test XSS Protection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('XSS attempts are sanitized', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', false);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    // Check that script tags are not echoed back",
+                  "    const responseText = JSON.stringify(response);",
+                  "    pm.expect(responseText).to.not.include('<script>');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"<script>alert('XSS')</script>John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+2348123456789\",\n  \"lga_id\": 1,\n  \"vehicle_type\": \"motorcycle\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test Large Payload Handling",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Large payloads are handled appropriately', function () {",
+                  "    // Should either process successfully or return 413 (Payload Too Large)",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 413]);",
+                  "    ",
+                  "    if (pm.response.code === 413) {",
+                  "        const response = pm.response.json();",
+                  "        pm.expect(response).to.have.property('success', false);",
+                  "        pm.expect(response).to.have.property('message');",
+                  "        pm.expect(response.message).to.include('payload');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+2348123456789\",\n  \"lga_id\": 1,\n  \"vehicle_type\": \"motorcycle\",\n  \"address\": \"{{$randomLoremParagraphs(100)}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cleanup Tests",
+      "item": [
+        {
+          "name": "Delete Test Rider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Test rider deleted successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{rider_port}}/riders/{{test_rider_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{rider_port}}",
+              "path": [
+                "riders",
+                "{{test_rider_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Final Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Final logout successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Clear collection variables', function () {",
+                  "    pm.collectionVariables.clear();",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}:{{auth_port}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "port": "{{auth_port}}",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

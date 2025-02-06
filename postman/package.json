@@ -1,0 +1,57 @@
+{
+  "name": "tss-backend-api-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive automated test suite for TSS Backend API using Postman and Newman",
+  "main": "index.js",
+  "scripts": {
+    "test": "newman run TSS_Backend_Complete_Test_Suite.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --reporters cli,html --reporter-html-export test-reports/report.html",
+    "test:extended": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --reporters cli,html --reporter-html-export test-reports/extended-report.html",
+    "test:full": "npm run test && npm run test:extended",
+    "test:health": "newman run TSS_Backend_Complete_Test_Suite.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Setup & Health Checks\"",
+    "test:auth": "newman run TSS_Backend_Complete_Test_Suite.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Authentication Service Tests\"",
+    "test:rider": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Rider Service Tests\"",
+    "test:jacket": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Jacket Service Tests\"",
+    "test:payment": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Payment Service Tests\"",
+    "test:sms": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"SMS Service Tests\"",
+    "test:verification": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Verification Service Tests\"",
+    "test:security": "newman run TSS_Backend_All_Services_Extended.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --folder \"Security & Error Handling Tests\"",
+    "test:ci": "newman run TSS_Backend_Complete_Test_Suite.postman_collection.json --environment TSS_Test_Environment.postman_environment.json --reporters cli,json,junit --reporter-json-export test-reports/results.json --reporter-junit-export test-reports/results.xml --bail",
+    "test:load": "for i in {1..5}; do npm run test & done; wait",
+    "setup": "mkdir -p test-reports && npm install",
+    "clean": "rm -rf test-reports/*",
+    "health-check": "curl -f http://localhost:3001/health && curl -f http://localhost:3002/health && curl -f http://localhost:3003/health && curl -f http://localhost:3004/health && curl -f http://localhost:3005/health && curl -f http://localhost:3006/health"
+  },
+  "keywords": [
+    "api-testing",
+    "postman",
+    "newman",
+    "tss",
+    "transportation-security",
+    "microservices",
+    "automation",
+    "testing"
+  ],
+  "author": "TSS Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "newman": "^6.0.0",
+    "newman-reporter-html": "^1.0.5",
+    "newman-reporter-htmlextra": "^1.23.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hokagedami/transportation-security-system-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hokagedami/transportation-security-system-backend/issues"
+  },
+  "homepage": "https://github.com/hokagedami/transportation-security-system-backend#readme"
+}
