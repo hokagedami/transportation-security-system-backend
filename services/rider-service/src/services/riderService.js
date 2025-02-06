@@ -2,19 +2,15 @@ const pool = require('../../shared/database/connection');
 const logger = require('../../shared/utils/logger');
 
 const generateJacketNumber = async (lgaId) => {
-  const client = await pool.connect();
-  
   try {
-    await client.query('BEGIN');
-    
-    const lgaResult = await client.query('SELECT code FROM lgas WHERE id = $1', [lgaId]);
+    const lgaResult = await pool.query('SELECT code FROM lgas WHERE id = $1', [lgaId]);
     if (lgaResult.rows.length === 0) {
       throw new Error('Invalid LGA ID');
     }
     
     const lgaCode = lgaResult.rows[0].code;
     
-    const countResult = await client.query(
+    const countResult = await pool.query(
       'SELECT COUNT(*) FROM riders WHERE lga_id = $1',
       [lgaId]
     );
@@ -23,13 +19,10 @@ const generateJacketNumber = async (lgaId) => {
     const sequentialNumber = count.toString().padStart(5, '0');
     const jacketNumber = `OG-${lgaCode}-${sequentialNumber}`;
     
-    await client.query('COMMIT');
     return jacketNumber;
   } catch (error) {
-    await client.query('ROLLBACK');
+    logger.error('Generate jacket number error:', error);
     throw error;
-  } finally {
-    client.release();
   }
 };
 
@@ -218,37 +211,26 @@ const deleteRider = async (id, deletedBy) => {
 
 const getRiderHistory = async (riderId) => {
   try {
-    const queries = {
-      registration: pool.query(
-        'SELECT * FROM riders WHERE id = $1',
-        [riderId]
-      ),
-      payments: pool.query(
-        'SELECT * FROM payments WHERE rider_id = $1 ORDER BY created_at DESC',
-        [riderId]
-      ),
-      jackets: pool.query(
-        'SELECT * FROM jackets WHERE rider_id = $1 ORDER BY created_at DESC',
-        [riderId]
-      ),
-      incidents: pool.query(
-        'SELECT * FROM incidents WHERE rider_id = $1 ORDER BY created_at DESC',
-        [riderId]
-      ),
-      verifications: pool.query(
-        'SELECT * FROM verifications WHERE rider_id = $1 ORDER BY created_at DESC LIMIT 10',
-        [riderId]
-      )
-    };
-    
-    const results = await Promise.all(Object.values(queries));
+    const [
+      registrationResult,
+      paymentsResult,
+      jacketsResult,
+      incidentsResult,
+      verificationsResult
+    ] = await Promise.all([
+      pool.query('SELECT * FROM riders WHERE id = $1', [riderId]),
+      pool.query('SELECT * FROM payments WHERE rider_id = $1 ORDER BY created_at DESC', [riderId]),
+      pool.query('SELECT * FROM jackets WHERE rider_id = $1 ORDER BY created_at DESC', [riderId]),
+      pool.query('SELECT * FROM incidents WHERE rider_id = $1 ORDER BY created_at DESC', [riderId]),
+      pool.query('SELECT * FROM verifications WHERE rider_id = $1 ORDER BY created_at DESC LIMIT 10', [riderId])
+    ]);
     
     return {
-      registration: results[0].rows[0],
-      payments: results[1].rows,
-      jackets: results[2].rows,
-      incidents: results[3].rows,
-      recent_verifications: results[4].rows
+      registration: registrationResult.rows[0] || null,
+      payments: paymentsResult.rows || [],
+      jackets: jacketsResult.rows || [],
+      incidents: incidentsResult.rows || [],
+      recent_verifications: verificationsResult.rows || []
     };
   } catch (error) {
     logger.error('Get rider history service error:', error);
@@ -262,5 +244,6 @@ module.exports = {
   getRiderById,
   updateRider,
   deleteRider,
-  getRiderHistory
+  getRiderHistory,
+  generateJacketNumber
 };

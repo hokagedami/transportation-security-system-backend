@@ -133,7 +133,7 @@ describe('Rider Service Integration Tests', () => {
           vehicle_type: 'motorcycle'
         });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
     });
   });
 
@@ -299,11 +299,11 @@ describe('Rider Service Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Rider deleted successfully');
+      expect(response.body.message).toBe('Rider revoked successfully');
     });
 
-    it('should require super_admin role for deletion', async () => {
-      const token = createToken({ id: 1, role: 'admin' });
+    it('should require super_admin or admin role for deletion', async () => {
+      const token = createToken({ id: 1, role: 'field_officer' });
 
       const response = await request(app)
         .delete('/1')

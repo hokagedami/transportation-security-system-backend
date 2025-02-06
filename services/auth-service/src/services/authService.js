@@ -58,8 +58,8 @@ const login = async (username, password) => {
       success: true,
       data: {
         user,
-        accessToken,
-        refreshToken
+        access_token: accessToken,
+        refresh_token: refreshToken
       }
     };
   } catch (error) {
@@ -116,8 +116,8 @@ const refreshToken = async (token) => {
     return {
       success: true,
       data: {
-        accessToken,
-        refreshToken: newRefreshToken
+        access_token: accessToken,
+        refresh_token: newRefreshToken
       }
     };
   } catch (error) {
