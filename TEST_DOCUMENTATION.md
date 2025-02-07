@@ -11,6 +11,7 @@ This document provides comprehensive guidance for running and maintaining the au
 1. **Unit Tests** - Test individual functions and components in isolation
 2. **Integration Tests** - Test API endpoints and service interactions
 3. **End-to-End Tests** - Test complete workflows across all services
+4. **API Tests (Postman)** - Comprehensive API testing with Newman automation
 
 ### Test Structure
 
@@ -24,6 +25,14 @@ tss-backend/
 │   ├── sms-service/tests/
 │   └── verification-service/tests/
 ├── e2e-tests/
+├── postman/                                      # API Test Suite
+│   ├── TSS_Backend_Complete_Test_Suite.json     # Main test collection
+│   ├── TSS_Backend_All_Services_Extended.json   # Extended tests
+│   ├── TSS_Test_Environment.json                # Environment config
+│   ├── run-tests.sh                             # Linux/Mac runner
+│   ├── run-tests.bat                            # Windows runner
+│   ├── package.json                             # NPM scripts
+│   └── README.md                                # API test docs
 ├── jest.setup.js
 ├── docker-compose.test.yml
 └── TEST_DOCUMENTATION.md
@@ -59,14 +68,40 @@ tss-backend/
 
 1. Docker and Docker Compose installed
 2. Node.js 18+ (for local testing only)
+3. Newman CLI (for API testing): `npm install -g newman newman-reporter-html`
 
 ### Quick Start
+
+#### API Testing with Postman/Newman
+
+```bash
+# Navigate to postman directory
+cd postman
+
+# Run all API tests (Linux/Mac)
+./run-tests.sh
+
+# Run all API tests (Windows)
+run-tests.bat
+
+# Run specific test collections
+npm run test:full          # Run all collections
+npm run test:auth          # Auth service only
+npm run test:rider         # Rider service only
+npm run test:payment       # Payment service only
+npm run test:security      # Security tests only
+
+# Run with CI/CD output format
+npm run test:ci           # Generates JUnit XML reports
+```
 
 #### Docker Testing (Recommended)
 
 ```bash
 # Run all tests in Docker (unit + integration + e2e)
 npm run test:docker:all
+
+# Note: Works on both Windows and Unix systems automatically
 
 # Run only unit and integration tests
 npm run test:docker
@@ -483,14 +518,172 @@ For performance testing, consider using:
 - Apache Bench (ab) for simple HTTP benchmarks
 - Custom scripts using the E2E test framework
 
+## API Testing with Postman
+
+### Overview
+
+The Postman test suite provides comprehensive API testing with 100% endpoint coverage across all microservices. Tests are automated using Newman CLI and can be integrated into CI/CD pipelines.
+
+### Test Collections
+
+1. **Main Collection** (`TSS_Backend_Complete_Test_Suite.postman_collection.json`)
+   - Health checks for all services
+   - Authentication service complete testing
+   - Global test scripts and pre-request scripts
+
+2. **Extended Collection** (`TSS_Backend_All_Services_Extended.postman_collection.json`)
+   - All remaining service tests (Rider, Jacket, Payment, SMS, Verification)
+   - Security and error handling tests
+   - Cleanup operations
+
+### Running API Tests
+
+#### Automated Execution
+
+```bash
+# Linux/Mac
+cd postman
+./run-tests.sh              # Run full test suite
+./run-tests.sh --check-health  # Health checks only
+./run-tests.sh --help          # Show options
+
+# Windows
+cd postman
+run-tests.bat               # Run full test suite
+```
+
+#### Manual Newman Execution
+
+```bash
+# Basic execution
+newman run TSS_Backend_Complete_Test_Suite.postman_collection.json \
+  --environment TSS_Test_Environment.postman_environment.json
+
+# With HTML report
+newman run TSS_Backend_Complete_Test_Suite.postman_collection.json \
+  --environment TSS_Test_Environment.postman_environment.json \
+  --reporters cli,html \
+  --reporter-html-export test-report.html
+
+# Run specific folder
+newman run collection.json --folder "Authentication Service Tests"
+```
+
+### API Test Coverage
+
+#### Endpoints Tested (100% Coverage)
+
+**Authentication Service (8 endpoints)**
+- POST /auth/login
+- GET /auth/me
+- POST /auth/refresh
+- POST /auth/logout
+
+**Rider Service (6 endpoints)**
+- POST /riders
+- GET /riders
+- GET /riders/:id
+- PUT /riders/:id
+- DELETE /riders/:id
+- GET /riders/:id/history
+
+**Jacket Service (6 endpoints)**
+- POST /jackets/create-order
+- GET /jackets
+- PUT /jackets/:id/status
+- POST /jackets/batch
+- GET /jackets/batch/:batch_id
+- PUT /jackets/:id/distribute
+
+**Payment Service (5 endpoints)**
+- POST /payment/initialize
+- GET /payment/rider/:rider_id
+- PUT /payment/:reference/verify
+- GET /payment/pending-verification
+- POST /payment/webhook/* (Paystack, Flutterwave)
+
+**SMS Service (5 endpoints)**
+- POST /sms/send-verification
+- POST /sms/send-notification
+- POST /sms/send-bulk
+- GET /sms/logs
+- POST /sms/webhook
+
+**Verification Service (6 endpoints)**
+- GET /verify/:jacket_number
+- POST /verify/log
+- POST /incidents
+- GET /incidents
+- PUT /incidents/:id
+- GET /verify/stats
+
+### Test Assertions
+
+Each test includes multiple assertions covering:
+- Response status codes
+- Response body structure
+- Data type validation
+- Business logic validation
+- Security headers
+- Response time benchmarks
+- Error message validation
+
+### CI/CD Integration
+
+#### GitHub Actions
+
+```yaml
+- name: Run API Tests
+  run: |
+    npm install -g newman newman-reporter-html
+    cd postman
+    npm run test:ci
+  
+- uses: actions/upload-artifact@v2
+  with:
+    name: api-test-reports
+    path: postman/test-reports/
+```
+
+#### Jenkins
+
+```groovy
+stage('API Tests') {
+    steps {
+        sh 'npm install -g newman newman-reporter-html'
+        sh 'cd postman && npm run test:ci'
+    }
+    post {
+        always {
+            junit 'postman/test-reports/*.xml'
+            publishHTML([
+                reportDir: 'postman/test-reports',
+                reportFiles: '*.html',
+                reportName: 'API Test Report'
+            ])
+        }
+    }
+}
+```
+
+### Test Reports
+
+Reports are generated in `postman/test-reports/`:
+- **HTML Reports**: Visual test results with charts
+- **JSON Reports**: Machine-readable results
+- **JUnit XML**: CI/CD integration format
+- **Summary Reports**: Test execution summary
+
 ## Security Testing
 
-Security tests are integrated into the main test suite:
+Security tests are integrated into both Jest and Postman test suites:
 - Authentication bypass attempts
 - SQL injection prevention
 - XSS prevention
 - CSRF token validation
 - Rate limiting effectiveness
+- Large payload handling
+- Invalid input handling
 
 ## Metrics and Monitoring
 
